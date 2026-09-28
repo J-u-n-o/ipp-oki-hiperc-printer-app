@@ -2,8 +2,8 @@
 set -e
 
 # Default to UID/GID 1000 if not specified by the user
-USER_ID=${PUID:-1000}
-GROUP_ID=${PGID:-1000}
+USER_ID=${UID:-1000}
+GROUP_ID=${GID:-1000}
 USER_NAME="papplrun"
 GROUP_NAME="papplrun"
 
@@ -23,15 +23,67 @@ else
     USER_NAME=$(getent passwd "$USER_ID" | cut -d: -f1)
 fi
 
-# 3. Ensure the runtime user owns the persistent volume data mapping
+
+echo 3. Ensure the runtime user owns the persistent volume data mapping
 mkdir -p /var/spool/pappl
 chown -R "$USER_ID:$GROUP_ID" /var/spool/pappl
+mkdir -p /var/spool/pappl
+chown -R "$USER_ID:$GROUP_ID" /var/spool/pappl
+mkdir -p /var/lib/legacy-printer-app
+chown -R "$USER_ID:$GROUP_ID" /var/lib/legacy-printer-app
 
-# 4. If running commands as root, step down to the specified non-root user
-if [ "$(id -u)" = '0' ]; then
-    # Execute the primary process using gosu to maintain proper signal handling
-    exec gosu "$USER_NAME" "$@"
+
+rm -rf /run/dbus/pid || true
+
+echo "=============================================="
+echo "Starting D-Bus"
+echo "=============================================="
+
+mkdir -p /run/dbus
+dbus-daemon --system --fork
+
+if [ ! -S /run/dbus/system_bus_socket ]; then
+    echo "ERROR: D-Bus system socket was not created"
+    exit 1
 fi
 
-# Fallback if already running as non-root
+echo "D-Bus ready:"
+ls -l /run/dbus/system_bus_socket
+
+
+echo "=============================================="
+echo "Starting Avahi"
+echo "=============================================="
+
+mkdir -p /run/avahi-daemon
+
+avahi-daemon --daemonize --no-chroot
+
+for i in $(seq 1 50); do
+    if [ -S /run/avahi-daemon/socket ]; then
+        break
+    fi
+    sleep 0.1
+done
+
+if [ ! -S /run/avahi-daemon/socket ]; then
+    echo "ERROR: Avahi socket was not created"
+    exit 1
+fi
+
+echo "Avahi ready:"
+ls -l /run/avahi-daemon/socket
+
+
+echo "=============================================="
+echo "Starting application"
+echo "=============================================="
+
+echo 4. If running commands as root, step down to the specified non-root user
+#if [ "$(id -u)" = '0' ]; then
+#    # Execute the primary process using gosu to maintain proper signal handling
+#    exec gosu "$USER_NAME" "$@"
+#fi
+
+echo Fallback if already running as non-root
 exec "$@"

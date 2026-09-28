@@ -256,11 +256,18 @@ ENV LD_LIBRARY_PATH=/usr/local/lib
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     \
+    gosu \
+	avahi-daemon \
+    avahi-utils \
+    dbus \
+    libnss-mdns \
     # CUPS
     libcups2 \
     libcupsimage2 \
-    \
+    cups-daemon \
+    cups-client \
     # PAPPL dependencies
+	libcap2-bin \
     libfontconfig1 \
     liblcms2-2 \
     libusb-1.0-0 \
@@ -278,6 +285,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     \
     # Printing infrastructure
     cups-filters \
+    # not in debian 12: foomatic-filters \
     ghostscript \
     mupdf-tools \
     poppler-utils \
@@ -289,6 +297,12 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     wget \
     ca-certificates \
     netcat-openbsd \
+    # netstat
+	net-tools \
+    # ps
+	procps \
+    strace \
+    binutils \
     \
     && rm -rf /var/lib/apt/lists/*
 
@@ -303,6 +317,8 @@ COPY --from=builder /usr/local/ /usr/local/
 RUN echo "/usr/local/lib" > /etc/ld.so.conf.d/local.conf \
     && ldconfig
 
+RUN setcap 'cap_net_bind_service=+ep' /usr/local/bin/legacy-printer-app
+RUN getcap /usr/local/bin/legacy-printer-app
 
 # =====================================================================
 # Runtime test 1: OpenPrinting libraries exist
@@ -434,17 +450,40 @@ RUN echo "==============================================" && \
     command -v foo2zjs-wrapper || true && \
     command -v foomatic-rip || true
 
-
 # =====================================================================
 # Persistent PAPPL state
 # =====================================================================
 
-RUN mkdir -p /var/lib/pappl
-RUN chmod 777 /var/lib/pappl
+#RUN mkdir -p /var/lib/pappl
+#RUN chmod 777 /var/lib/pappl
 
-VOLUME ["/var/lib/pappl"]
+RUN mkdir -p /var/lib/legacy-printer-app \
+    && chmod 777 /var/lib/legacy-printer-app
 
-WORKDIR /var/lib/pappl
+RUN mkdir -p /var/spool/legacy-printer-app \
+    && chmod 777 /var/spool/legacy-printer-app
+
+#RUN mkdir -p /usr/lib/legacy-printer-app/backend
+#RUN mkdir -p /usr/lib/legacy-printer-app
+#RUN chmod 777 /usr/lib/legacy-printer-app
+#RUN chmod 777 /usr/lib/legacy-printer-app/backend
+
+# pappl-retrofit expects this to expose the normal CUPS
+# filters and backends.
+RUN rm -rf /usr/lib/legacy-printer-app \
+    && ln -s /usr/lib/cups /usr/lib/legacy-printer-app
+
+RUN mkdir -p /var/spool/legacy-printer-app
+RUN chmod 777 /var/spool/legacy-printer-app
+
+
+#VOLUME ["/var/lib/pappl"]
+
+#WORKDIR /var/lib/pappl
+
+VOLUME ["/var/lib/legacy-printer-app"]
+
+WORKDIR /var/lib/legacy-printer-app
 
 
 # =====================================================================
@@ -460,8 +499,11 @@ RUN chmod +x /usr/local/bin/docker-entrypoint.sh
 # PAPPL / Legacy Printer Application
 # =====================================================================
 
-EXPOSE 8000
+#default
+#EXPOSE 8000
+EXPOSE 80
 
 ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]
 
-CMD ["legacy-printer-app", "server"]
+CMD ["legacy-printer-app", "server", "-o", "server-port=80"]
+#CMD ["legacy-printer-app", "server"]
