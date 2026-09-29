@@ -261,6 +261,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     avahi-utils \
     dbus \
     libnss-mdns \
+    snmp \
     # CUPS
     libcups2 \
     libcupsimage2 \
