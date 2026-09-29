@@ -267,6 +267,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libcupsimage2 \
     cups-daemon \
     cups-client \
+    cups \
     # PAPPL dependencies
 	libcap2-bin \
     libfontconfig1 \
@@ -477,6 +478,10 @@ RUN rm -rf /usr/lib/legacy-printer-app \
 RUN mkdir -p /var/spool/legacy-printer-app
 RUN chmod 777 /var/spool/legacy-printer-app
 
+RUN mkdir -p /usr/share/legacy-printer-app
+RUN chmod 777 /usr/share/legacy-printer-app
+RUN ln -s /usr/local/share/legacy-printer-app/testpage.pdf \
+      /usr/share/legacy-printer-app/testpage.pdf
 
 #VOLUME ["/var/lib/pappl"]
 
