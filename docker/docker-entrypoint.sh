@@ -79,11 +79,13 @@ echo "=============================================="
 echo "Starting application"
 echo "=============================================="
 
-echo 4. If running commands as root, step down to the specified non-root user
 if [ "$(id -u)" = '0' ]; then
+    echo 4. If running commands as root, step down to the specified non-root user "$USER_NAME"
     # Execute the primary process using gosu to maintain proper signal handling
+    echo "$@"
     exec gosu "$USER_NAME" "$@"
+else
+    echo Fallback if already running as non-root
+    echo "$@"
+    exec "$@"
 fi
-
-echo Fallback if already running as non-root
-exec "$@"
