@@ -7,7 +7,11 @@ GROUP_ID=${GID:-1000}
 USER_NAME="papplrun"
 GROUP_NAME="papplrun"
 
-echo "Checking execution permissions... Run As: UID=$USER_ID, GID=$GROUP_ID"
+FULL_HOSTNAME=$(hostname -f)
+HOST_NAME="${FULL_HOSTNAME%%.*}"
+DOMAIN_NAME="${FULL_HOSTNAME#*.}"
+
+echo "Checking execution permissions... Run On: $(HOST_NAME) : $(DOMAIN_NAME) As: UID=$USER_ID, GID=$GROUP_ID"
 
 # 1. Create the matching group if it doesn't exist
 if ! getent group "$GROUP_ID" >/dev/null 2>&1; then
@@ -57,6 +61,17 @@ ls -l /run/dbus/system_bus_socket
 echo "=============================================="
 echo "Starting Avahi"
 echo "=============================================="
+
+# 1. Add or replace the configurations under the [server] section
+sed -i "/^\[server\]/,/^\[/ {
+    # If host-name matches, replace it. If we reach the next section and haven't seen it, we'll append it.
+    s/^[# ]*host-name=.*/host-name=$HOST_NAME/
+    s/^[# ]*domain-name=.*/domain-name=$DOMAIN_NAME/
+}" /etc/avahi/avahi-daemon.conf
+
+# 2. Handle cases where the keys didn't exist at all in the [server] section
+grep -q "^host-name=" /etc/avahi/avahi-daemon.conf || sed -i "/^\[server\]/a host-name=$HOST_NAME" /etc/avahi/avahi-daemon.conf
+grep -q "^domain-name=" /etc/avahi/avahi-daemon.conf || sed -i "/^\[server\]/a domain-name=$DOMAIN_NAME" /etc/avahi/avahi-daemon.conf
 
 mkdir -p /run/avahi-daemon
 
