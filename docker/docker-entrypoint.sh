@@ -26,11 +26,14 @@ fi
 
 echo 3. Ensure the runtime user owns the persistent volume data mapping
 mkdir -p /var/spool/pappl
-chown -R "$USER_ID:$GROUP_ID" /var/spool/pappl
+chown -R "$USER_ID:$GROUP_ID" /var/spool/pappl || true
 mkdir -p /var/spool/pappl
-chown -R "$USER_ID:$GROUP_ID" /var/spool/pappl
+chown -R "$USER_ID:$GROUP_ID" /var/spool/pappl || true
 mkdir -p /var/lib/legacy-printer-app
-chown -R "$USER_ID:$GROUP_ID" /var/lib/legacy-printer-app
+# Not recursive due to non writable .../ssl/...
+chown "$USER_ID:$GROUP_ID" /var/lib/legacy-printer-app || true
+chown "$USER_ID:$GROUP_ID" /var/lib/legacy-printer-app/legacy-printer-app.* || true
+chown -R "$USER_ID:$GROUP_ID" /var/lib/legacy-printer-app || true
 
 
 rm -rf /run/dbus/pid || true
