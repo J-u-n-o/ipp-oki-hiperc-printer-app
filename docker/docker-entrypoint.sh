@@ -65,11 +65,13 @@ echo "=============================================="
 # 1. Add or replace the configurations under the [server] section
 sed -i "/^\[server\]/,/^\[/ {
     # If host-name matches, replace it. If we reach the next section and haven't seen it, we'll append it.
+    s/^[# ]*allow-point-to-point=.*/allow-point-to-point=yes/
     s/^[# ]*host-name=.*/host-name=$HOST_NAME/
     s/^[# ]*domain-name=.*/domain-name=$DOMAIN_NAME/
 }" /etc/avahi/avahi-daemon.conf
 
 # 2. Handle cases where the keys didn't exist at all in the [server] section
+grep -q "^allow-point-to-point=" /etc/avahi/avahi-daemon.conf || sed -i "/^\[server\]/a allow-point-to-point=yes" /etc/avahi/avahi-daemon.conf
 grep -q "^host-name=" /etc/avahi/avahi-daemon.conf || sed -i "/^\[server\]/a host-name=$HOST_NAME" /etc/avahi/avahi-daemon.conf
 grep -q "^domain-name=" /etc/avahi/avahi-daemon.conf || sed -i "/^\[server\]/a domain-name=$DOMAIN_NAME" /etc/avahi/avahi-daemon.conf
 
