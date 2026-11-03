@@ -301,6 +301,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     netcat-openbsd \
     # netstat
 	net-tools \
+    iputils-ping \
     # ps
 	procps \
     strace \
