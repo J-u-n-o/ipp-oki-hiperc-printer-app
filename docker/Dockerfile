@@ -506,10 +506,24 @@ RUN chmod +x /usr/local/bin/docker-entrypoint.sh
 # =====================================================================
 
 #default
-#EXPOSE 8000
-EXPOSE 80
+#EXPOSE 80
+EXPOSE 8000
+
+# Create the directory if missing, then check if the file exists before writing to it
+RUN if [ ! -f /var/lib/legacy-printer-app/legacy-printer-app.conf ]; then \
+        echo "# Sets the standard HTTP listening port" > /var/lib/legacy-printer-app/legacy-printer-app.conf && \
+        echo "server-port=8000" > /var/lib/legacy-printer-app/legacy-printer-app.conf && \
+        echo "" > /var/lib/legacy-printer-app/legacy-printer-app.conf && \
+        echo "# Explicitly disables TLS/HTTPS and leaves standard web access on" > /var/lib/legacy-printer-app/legacy-printer-app.conf && \
+        echo "server-options=no-tls" >> /var/lib/legacy-printer-app/legacy-printer-app.conf; \
+        echo "# Enables the web security panel and explicit TLS management pages" >> /var/lib/legacy-printer-app/legacy-printer-app.conf; \
+        echo "# server-options=multi-queue,web-interface,raw-socket,web-security,web-tls" >> /var/lib/legacy-printer-app/legacy-printer-app.conf; \
+        chmod 666 /var/lib/legacy-printer-app/legacy-printer-app.conf; \
+    fi
+
+ENV XDG_CONFIG_HOME=/var/lib/legacy-printer-app
 
 ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]
 
-CMD ["legacy-printer-app", "server", "-o", "server-port=80"]
-#CMD ["legacy-printer-app", "server"]
+#CMD ["legacy-printer-app", "server", "-o", "server-port=80"]
+CMD ["legacy-printer-app", "server"]
