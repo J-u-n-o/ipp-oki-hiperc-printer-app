@@ -11,7 +11,7 @@ FULL_HOSTNAME=$(hostname -f)
 HOST_NAME="${FULL_HOSTNAME%%.*}"
 DOMAIN_NAME="${FULL_HOSTNAME#*.}"
 
-echo "Checking execution permissions... Run On: $(HOST_NAME) : $(DOMAIN_NAME) As: UID=$USER_ID, GID=$GROUP_ID"
+echo "Checking execution permissions... Run On: $HOST_NAME : $DOMAIN_NAME As: UID=$USER_ID, GID=$GROUP_ID"
 
 # 1. Create the matching group if it doesn't exist
 if ! getent group "$GROUP_ID" >/dev/null 2>&1; then
