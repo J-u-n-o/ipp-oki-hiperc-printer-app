@@ -81,7 +81,8 @@ RUN wget -q --show-progress \
     && echo "/build/pappl/pappl/system-webif.c" \
     && grep -n '/config' /build/pappl/pappl/system-webif.c \
     && echo "------" \
-    && sed -i 's|<h2 class=\\"title\\"><a href=\\"%s/\\">%s</a> <a class=\\"btn\\" href=\\"%s://%s:%d%s/delete\\">%s</a></h2>\\n", printer->uriname, printer->name, _papplClientGetAuthWebScheme(client), client->host_field, client->host_port,|<h2 class=\\"title\\"><a href=\\"%s/\\">%s</a> <a class=\\"btn\\" href=\\"/%s/delete\\">%s</a></h2>\\n", printer->uriname, printer->name, printer->uriname,|' /build/pappl/pappl/printer-webif.c \
+    && sed -i 's|<h2 class=\\"title\\"><a href=\\"%s/\\">%s</a> <a class=\\"btn\\" href=\\"%s://%s:%d%s/delete\\">%s</a></h2>\\n", printer->uriname, printer->name, _papplClientGetAuthWebScheme(client), client->host_field, client->host_port,|<h2 class=\\"title\\"><a href=\\"%s/\\">%s</a> <a class=\\"btn\\" href=\\"%s/delete\\">%s</a></h2>\\n", printer->uriname, printer->name,|' /build/pappl/pappl/printer-webif.c \
+    && sed -i 's|<a class=\\"btn\\" href=\\"%s://%s:%d%s/delete\\">%s</a>", _papplClientGetAuthWebScheme(client), client->host_field, client->host_port,|<a class=\\"btn\\" href=\\"%s/delete\\">%s</a>",|' /build/pappl/pappl/printer-webif.c \
     && echo "------" \
     && echo "/build/pappl/pappl/printer-webif.c" \
     && grep -n '/delete' /build/pappl/pappl/printer-webif.c \
