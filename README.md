@@ -72,3 +72,79 @@ sudo docker network connect --ip 172.16.1.10 nut-bridge nut-upsd
     }
 ]
 ```
+
+
+
+
+For debugging
+
+/usr/local/bin/docker-entrypoint.sh strace -f -s 4096 -e trace=execve,execveat -o /tmp/printer-trace.log legacy-printer-app -o log-level=debug server
+
+
+
+```
+services:
+  ipp-oki-hiperc-printer-app:
+    image: ghcr.io/j-u-n-o/ipp-oki-hiperc-printer-app:latest
+    container_name: ipp-oki-hiperc-printer-app
+    command:
+      - strace
+      - -f
+      - -s
+      - "4096"
+      - -e
+      - trace=execve,execveat
+      - -o
+      - /tmp/printer-trace.log
+      - legacy-printer-app
+      - server
+    hostname: oki-c5800
+    # Or with domain
+    domainname: my.dns.org
+    dns:
+      - 8.8.8.8
+    environment:
+      - UID=1234
+      - GID=1234
+      - TZ=Europe/Amsterdam
+    # Linux Capabilities configuration
+    cap_add:
+      - NET_BIND_SERVICE
+      - SYS_PTRACE
+    volumes:
+      - /host/container/ipp-oki-hiperc-printer-app/pappl:/var/lib/legacy-printer-app
+      - /host/container/ipp-oki-hiperc-printer-app/spool:/var/spool/legacy-printer-app
+      # Ensure you mount the host system's Let's Encrypt directory completely to handle nested symlinks
+      - /host/container/letsencrypt/config/etc/letsencrypt:/etc/letsencrypt:ro
+      # Target the explicit /ssl/ subfolder inside your config mount path
+      - /host/container/letsencrypt/config/etc/letsencrypt/live/my.dns.org/privkey.pem:/var/lib/legacy-printer-app/ssl/oki.juno.ddnss.org.key:ro
+      - /host/container/letsencrypt/config/etc/letsencrypt/live/my.dns.org/fullchain.pem:/var/lib/legacy-printer-app/ssl/oki.juno.ddnss.org.crt:ro
+    restart: always
+    networks:
+      mymacvlan:
+        ipv4_address: 192.168.172.208
+        mac_address: 12:34:56:78:ab:cd
+    working_dir: /var/lib/legacy-printer-app
+networks:
+  mymacvlan:
+    external: true
+```
+
+```
+# Sets the standard HTTP listening port
+# server-port=80
+# Force the specific FQDN across the entire web engine
+server-hostname=my.dns.org
+# server-name=my.dns.org
+# Set back to the explicit FQDN to stop the framework from defaulting to .local discovery
+listen-hostname=my.dns.org
+# listen-hostname=*
+# dns-sd-name=my.dns.org
+server-port=443
+
+# Explicitly disables TLS/HTTPS and leaves standard web access on
+# server-options=no-tls
+
+# Enables the web security panel and explicit TLS management pages
+server-options=multi-queue,web-interface,raw-socket,web-security,web-tls
+```
