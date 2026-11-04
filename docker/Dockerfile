@@ -71,7 +71,7 @@ RUN wget -q --show-progress \
         -O /tmp/pappl.tar.gz \
     && tar -xzf /tmp/pappl.tar.gz -C /build \
     && mv "/build/pappl-${PAPPL_VERSION}" /build/pappl \
-    && sed -i 's|papplClientHTMLPrintf(client, "          <a class="btn" href="%s://%s:%d%s">%s</a>\\n", webscheme, client->host_field, client->host_port, l->path_or_url, papplClientGetLocString(client, l->label));|papplClientHTMLPrintf(client, "          <a class="btn" href="%s">%s</a>\\n", l->path_or_url, papplClientGetLocString(client, l->label));|' /build/pappl/pappl/client-webif.c \
+    && sed -i 's|papplClientHTMLPrintf(client, "          <a class=\"btn\" href=\"%s://%s:%d%s\">%s</a>\\n", webscheme, client->host_field, client->host_port, l->path_or_url, papplClientGetLocString(client, l->label));|papplClientHTMLPrintf(client, "          <a class=\"btn\" href=\"%s\">%s</a>\\n", l->path_or_url, papplClientGetLocString(client, l->label));|' /build/pappl/pappl/client-webif.c \
     && echo "------" \
     && echo "/build/pappl/pappl/client-webif.c" \
     && grep -n 'papplClientHTMLPrintf' /build/pappl/pappl/client-webif.c \
