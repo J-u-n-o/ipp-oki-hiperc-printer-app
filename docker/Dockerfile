@@ -71,31 +71,32 @@ RUN wget -q --show-progress \
         -O /tmp/pappl.tar.gz \
     && tar -xzf /tmp/pappl.tar.gz -C /build \
     && mv "/build/pappl-${PAPPL_VERSION}" /build/pappl \
-    && sed -i 's|papplClientHTMLPrintf(client, "          <a class=\\"btn\\" href=\\"%s://%s:%d%s\\">%s</a>\\n", webscheme, client->host_field, client->host_port, l->path_or_url, papplClientGetLocString(client, l->label));|papplClientHTMLPrintf(client, "          <a class=\\"btn\\" href=\\"%s\\">%s</a>\\n", l->path_or_url, papplClientGetLocString(client, l->label));|' /build/pappl/pappl/client-webif.c \
     && echo "------" \
-    && echo "/build/pappl/pappl/client-webif.c" \
+    && sed -i 's|papplClientHTMLPrintf(client, "          <a class=\\"btn\\" href=\\"%s://%s:%d%s\\">%s</a>\\n", webscheme, client->host_field, client->host_port, l->path_or_url, papplClientGetLocString(client, l->label));|papplClientHTMLPrintf(client, "          <a class=\\"btn\\" href=\\"%s\\">%s</a>\\n", l->path_or_url, papplClientGetLocString(client, l->label));|' /build/pappl/pappl/client-webif.c \
+    && echo "/build/pappl/pappl/client-webif.c : papplClientHTMLPrintf" \
     && grep -n 'papplClientHTMLPrintf' /build/pappl/pappl/client-webif.c \
     && echo "------" \
+    && echo "------" \
     && sed -i 's|href=\\"%s://%s:%d/config\\">%s</a></h1>\\n", papplClientGetLocString(client, _PAPPL_LOC("Configuration")), _papplClientGetAuthWebScheme(client), client->host_field, client->host_port,|href=\\"/config\\">%s</a></h1>\\n", papplClientGetLocString(client, _PAPPL_LOC("Configuration")),|' /build/pappl/pappl/system-webif.c \
-    && echo "------" \
-    && echo "/build/pappl/pappl/system-webif.c" \
+    && echo "/build/pappl/pappl/system-webif.c : /config" \
     && grep -n '/config' /build/pappl/pappl/system-webif.c \
-    && sed -i 's|<a class=\\"btn\" href=\\"%s://%s:%d/config\\">%s</a></h1>\n", papplClientGetLocString(client, _PAPPL_LOC("Configuration")), _papplClientGetAuthWebScheme(client), client->host_field, client->host_port,|<a class=\\"btn\" href=\\"/config\\">%s</a></h1>\n", papplClientGetLocString(client, _PAPPL_LOC("Configuration")),|' /build/pappl/pappl/system-webif.c \
     && echo "------" \
-    && echo "/build/pappl/pappl/system-webif.c" \
-    && grep -n '/config' /build/pappl/pappl/system-webif.c \
     && echo "------" \
     && sed -i 's|<h2 class=\\"title\\"><a href=\\"%s/\\">%s</a> <a class=\\"btn\\" href=\\"%s://%s:%d%s/delete\\">%s</a></h2>\\n", printer->uriname, printer->name, _papplClientGetAuthWebScheme(client), client->host_field, client->host_port,|<h2 class=\\"title\\"><a href=\\"%s/\\">%s</a> <a class=\\"btn\\" href=\\"%s/delete\\">%s</a></h2>\\n", printer->uriname, printer->name,|' /build/pappl/pappl/printer-webif.c \
     && sed -i 's|<a class=\\"btn\\" href=\\"%s://%s:%d%s/delete\\">%s</a>", _papplClientGetAuthWebScheme(client), client->host_field, client->host_port,|<a class=\\"btn\\" href=\\"%s/delete\\">%s</a>",|' /build/pappl/pappl/printer-webif.c \
-    && echo "------" \
-    && echo "/build/pappl/pappl/printer-webif.c" \
+    && echo "/build/pappl/pappl/printer-webif.c : /cancelall" \
     && grep -n '/delete' /build/pappl/pappl/printer-webif.c \
     && echo "------" \
-    && sed -i 's|<a class=\\"btn\\" href=\\"%s://%s:%d%s/cancelall\\">%s</a></h1>\n", _papplClientGetAuthWebScheme(client), client->host_field, client->host_port,|<a class=\\"btn\\" href=\\"%s/cancelall\\">%s</a></h1>\n",|' /build/pappl/pappl/printer-webif.c \
     && echo "------" \
-    && echo "/build/pappl/pappl/printer-webif.c" \
+    && sed -i 's|<a class=\\"btn\\" href=\\"%s://%s:%d%s/cancelall\\">%s</a></h1>\n", _papplClientGetAuthWebScheme(client), client->host_field, client->host_port,|<a class=\\"btn\\" href=\\"%s/cancelall\\">%s</a></h1>\n",|' /build/pappl/pappl/printer-webif.c \
+    && echo "/build/pappl/pappl/printer-webif.c : /cancelall" \
     && grep -n '/cancelall' /build/pappl/pappl/printer-webif.c \
-    && echo "------" \    
+    && echo "------" \
+    && echo "------" \
+    && sed -i 's|<a class=\\"btn\\" href=\\"%s://%s:%d%s\\">%s</a></h1>\\n", papplClientGetLocString(client, _PAPPL_LOC("Configuration")), _papplClientGetAuthWebScheme(client), client->host_field, client->host_port,|<a class=\\"btn\\" href=\\"%s\\">%s</a></h1>\\n", papplClientGetLocString(client, _PAPPL_LOC("Configuration")),|' /build/pappl/pappl/printer-webif.c \
+    && echo "/build/pappl/pappl/printer-webif.c : /config" \
+    && grep -n '/config' /build/pappl/pappl/printer-webif.c \
+    && echo "------" \
     && rm -f /tmp/pappl.tar.gz
 
 
