@@ -77,7 +77,7 @@ grep -q "^domain-name=" /etc/avahi/avahi-daemon.conf || sed -i "/^\[server\]/a d
 
 mkdir -p /run/avahi-daemon
 
-avahi-daemon --daemonize --no-chroot
+avahi-daemon --daemonize --no-chroot || true
 
 for i in $(seq 1 50); do
     if [ -S /run/avahi-daemon/socket ]; then
