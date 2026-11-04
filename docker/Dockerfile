@@ -76,6 +76,16 @@ RUN wget -q --show-progress \
     && echo "/build/pappl/pappl/client-webif.c" \
     && grep -n 'papplClientHTMLPrintf' /build/pappl/pappl/client-webif.c \
     && echo "------" \
+    && sed -i 's|href=\\"%s://%s:%d/config\\">%s</a></h1>\\n", papplClientGetLocString(client, _PAPPL_LOC("Configuration")), _papplClientGetAuthWebScheme(client), client->host_field, client->host_port,|href=\\"/config\\">%s</a></h1>\\n", papplClientGetLocString(client, _PAPPL_LOC("Configuration")),|' /build/pappl/pappl/system-webif.c \
+    && echo "------" \
+    && echo "/build/pappl/pappl/system-webif.c" \
+    && grep -n '/config' /build/pappl/pappl/system-webif.c \
+    && echo "------" \
+    && sed -i 's|<h2 class=\\"title\\"><a href=\\"%s/\\">%s</a> <a class=\\"btn\\" href=\\"%s://%s:%d%s/delete\\">%s</a></h2>\\n", printer->uriname, printer->name, _papplClientGetAuthWebScheme(client), client->host_field, client->host_port,|<h2 class=\\"title\\"><a href=\\"%s/\\">%s</a> <a class=\\"btn\\" href=\\"/%s/delete\\">%s</a></h2>\\n", printer->uriname, printer->name, printer->uriname,|' /build/pappl/pappl/printer-webif.c \
+    && echo "------" \
+    && echo "/build/pappl/pappl/printer-webif.c" \
+    && grep -n '/delete' /build/pappl/pappl/printer-webif.c \
+    && echo "------" \    
     && rm -f /tmp/pappl.tar.gz
 
 
